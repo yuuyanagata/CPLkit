@@ -37,7 +37,7 @@ One of the following workflows is required.
 Clone the repository and install the Python dependency.
 
 ```bash
-git clone https://github.com/your-username/CPLkit.git
+git clone https://github.com/yuuyanagata/CPLkit
 cd CPLkit
 pip install -r requirements.txt
 ```
