@@ -86,7 +86,7 @@ The CPL CSV includes a column named `Radiative Rate Constant (ns^-1)` for each p
 k_{\mathrm r}(\mathrm{ns}^{-1}) = 6.67 \times 10^{4} \frac{f}{\lambda^{2}(\mathrm{nm})}
 ```
 
-where `f` is the oscillator strength reported by Gaussian TD-DFT and `了` is the transition wavelength in nm written to the same CSV row. This expression corresponds to the Einstein spontaneous emission rate in a practical wavelength based form.
+where `f` is the oscillator strength reported by Gaussian TD-DFT and `λ` is the transition wavelength in nm written to the same CSV row. This expression corresponds to the Einstein spontaneous emission rate in a practical wavelength based form.
 
 ## Main command-line options
 
