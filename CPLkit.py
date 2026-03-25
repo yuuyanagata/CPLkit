@@ -57,6 +57,7 @@ ELECTRIC_CONST_CGS = 254.17
 MAGNETIC_CONST_CGS = -0.927401
 HARTREE_TO_KJMOL = 2625.5
 EV_TO_KJMOL = 96.4853
+RADIATIVE_RATE_CONST_NS = 6.67e4
 
 
 class Timer:
@@ -208,6 +209,7 @@ class CPLRow:
     wavelength_nm: float
     g_value: float
     oscillator_strength: float
+    radiative_rate_constant_ns: float
     s1_energy_kjmol: float
     s0_energy_kjmol: float
 
@@ -339,6 +341,7 @@ def build_cpl_rows(log_text: str) -> List[CPLRow]:
         oscillator_strength = osc_from_excited
         if math.isfinite(osc_from_electric) and abs(osc_from_electric - osc_from_excited) > 1e-6:
             oscillator_strength = osc_from_excited
+        radiative_rate_constant_ns = (RADIATIVE_RATE_CONST_NS * oscillator_strength / (wavelength_nm * wavelength_nm)) if wavelength_nm > 0.0 else float("nan")
         s1_energy_kjmol = s0_energy_kjmol + e_ev * EV_TO_KJMOL
 
         rows.append(
@@ -357,6 +360,7 @@ def build_cpl_rows(log_text: str) -> List[CPLRow]:
                 wavelength_nm=wavelength_nm,
                 g_value=g_value,
                 oscillator_strength=oscillator_strength,
+                radiative_rate_constant_ns=radiative_rate_constant_ns,
                 s1_energy_kjmol=s1_energy_kjmol,
                 s0_energy_kjmol=s0_energy_kjmol,
             )
@@ -382,8 +386,7 @@ def write_cpl_csv(path: Path, source_log: Path, rows: Sequence[CPLRow]) -> None:
         "nm",
         "g value",
         "Oscillator Strength",
-        "S1-Energy",
-        "S0-Energy",
+        "Radiative Rate Constant (ns^-1)",
     ]
     with path.open("w", encoding="utf-8", newline="") as f:
         writer = csv.writer(f)
@@ -406,8 +409,7 @@ def write_cpl_csv(path: Path, source_log: Path, rows: Sequence[CPLRow]) -> None:
                     f"{row.wavelength_nm:.18g}",
                     f"{row.g_value:.18g}",
                     f"{row.oscillator_strength:.18g}",
-                    f"{row.s1_energy_kjmol:.18g}",
-                    f"{row.s0_energy_kjmol:.18g}",
+                    f"{row.radiative_rate_constant_ns:.18g}",
                 ]
             )
 
