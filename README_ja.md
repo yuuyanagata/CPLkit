@@ -7,6 +7,7 @@
 - Gaussian TD-DFT 出力から TEDM density cube を生成します。
 - Gaussian TD-DFT 出力から TMDM density cube を生成します。
 - 解析した励起状態に対する CPL 関連量を CSV として自動出力します。
+- 各遷移について発光速度定数を `Radiative Rate Constant (ns^-1)` として CSV に自動出力します。
 - `cubegen` を用いた checkpoint ベースの MO cube 生成と、事前生成済み `mo<MO>.cube` の再利用の両方に対応します。
 - GaussView との互換性のために Gaussian cube のメタデータを保持します。
 - 投影後の total cube に加えて Cartesian 成分 cube を任意で出力できます。
@@ -78,6 +79,16 @@ python CPLkit.py --log sample.out --state 1 --mocubes_dir ./sample_S1_mocubes
 python CPLkit.py --log sample.out --state 1 --chk sample.fchk --keep_components
 ```
 
+## CSV に出力される発光速度定数
+
+CPL CSV には，各励起状態遷移について `Radiative Rate Constant (ns^-1)` 列が含まれます。この値は，Gaussian TD-DFT 出力に含まれる振動子強度と遷移波長から，次式によって見積もられます。
+
+```math
+k_{\mathrm r}(\mathrm{ns}^{-1}) = 6.67 \times 10^{4} \frac{f}{\lambda^{2}(\mathrm{nm})}
+```
+
+ここで，`f` は Gaussian TD-DFT が与える振動子強度であり，`λ` は同じ CSV 行に出力される nm 単位の遷移波長です。この式は，Einstein の自然放出速度を波長ベースの実用式として表したものです。
+
 ## 主なコマンドライン引数
 
 - `--log`  
@@ -132,7 +143,7 @@ python CPLkit.py --log sample.out --state 1 --chk sample.fchk --keep_components
 
 選択したオプションに応じて、以下のようなファイルが生成されます。
 
-- `<logstem>-CPL.csv`
+- `<logstem>-CPL.csv`。各遷移の CPL 関連量に加えて `Radiative Rate Constant (ns^-1)` 列を含みます。
 - `<logstem>_S1_TEDM_total.cube`
 - `<logstem>_S1_TMDM_total.cube`
 - `<logstem>_S1_TEDM_x.cube`
