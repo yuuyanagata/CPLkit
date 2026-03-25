@@ -7,6 +7,7 @@
 - Generation of TEDM density cubes from Gaussian TD-DFT output.
 - Generation of TMDM density cubes from Gaussian TD-DFT output.
 - Automatic export of CPL-related quantities for all parsed excited states to CSV.
+- Automatic export of the radiative rate constant for each transition to the CSV file as `Radiative Rate Constant (ns^-1)`.
 - Support for either checkpoint based MO cube generation through `cubegen` or reuse of pre-generated `mo<MO>.cube` files.
 - Preservation of Gaussian cube metadata for compatibility with GaussView.
 - Optional export of Cartesian component cubes in addition to projected total cubes.
@@ -77,6 +78,16 @@ python CPLkit.py --log sample.out --state 1 --mocubes_dir ./sample_S1_mocubes
 python CPLkit.py --log sample.out --state 1 --chk sample.fchk --keep_components
 ```
 
+## Radiative rate constant in the CSV
+
+The CPL CSV includes a column named `Radiative Rate Constant (ns^-1)` for each parsed excited-state transition. The value is estimated from the oscillator strength and transition wavelength according to
+
+```math
+k_{\mathrm r}(\mathrm{ns}^{-1}) = 6.67 \times 10^{4} \frac{f}{\lambda^{2}(\mathrm{nm})}
+```
+
+where `f` is the oscillator strength reported by Gaussian TD-DFT and `了` is the transition wavelength in nm written to the same CSV row. This expression corresponds to the Einstein spontaneous emission rate in a practical wavelength based form.
+
 ## Main command-line options
 
 - `--log`  
@@ -131,7 +142,7 @@ python CPLkit.py --log sample.out --state 1 --chk sample.fchk --keep_components
 
 Depending on the selected options, the script writes files such as the following.
 
-- `<logstem>-CPL.csv`
+- `<logstem>-CPL.csv` containing CPL summary quantities and the `Radiative Rate Constant (ns^-1)` column for each transition
 - `<logstem>_S1_TEDM_total.cube`
 - `<logstem>_S1_TMDM_total.cube`
 - `<logstem>_S1_TEDM_x.cube`
