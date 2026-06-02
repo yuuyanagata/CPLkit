@@ -114,7 +114,6 @@ The Gaussian IOp(9/40) coefficient-printing threshold should be set sufficiently
 
 ```text
 CPLkit.py                  Backward-compatible script entry point
-CPLKit.py                  Backward-compatible script entry point
 cplkit/                    Python package
 examples/                  Minimal command-line examples
 docs/                      Implementation and mode notes
