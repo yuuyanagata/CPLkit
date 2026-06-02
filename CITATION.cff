@@ -1,0 +1,7 @@
+cff-version: 1.2.0
+message: "If you use CPLKit, please cite the accompanying manuscript or this repository."
+title: "CPLKit: Gaussian TD-DFT post-processing for EDTM and MDTM density analysis"
+version: "0.4.0"
+license: "MIT"
+authors:
+  - name: "CPLkit contributors"

@@ -1,0 +1,34 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+venv/
+env/
+*.egg-info/
+build/
+dist/
+
+# Test and coverage output
+.pytest_cache/
+.coverage
+htmlcov/
+
+# CPLKit generated outputs
+*.cube
+*.cub
+*.chk
+*.fchk
+*.rwf
+*.log
+*.out
+*_CPL.csv
+*_moment_validation.csv
+density_mode_settings.txt
+_scratch/
+
+# OS and editor files
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/

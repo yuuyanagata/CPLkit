@@ -1,0 +1,49 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "cplkit"
+version = "0.4.0"
+description = "Gaussian TD-DFT post-processing for EDTM and MDTM density analysis in circularly polarized luminescence studies"
+readme = "README.md"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+authors = [
+  { name = "CPLkit contributors" }
+]
+keywords = [
+  "circularly polarized luminescence",
+  "Gaussian",
+  "TD-DFT",
+  "transition moment density",
+  "electric dipole transition moment",
+  "magnetic dipole transition moment"
+]
+classifiers = [
+  "Development Status :: 4 - Beta",
+  "Intended Audience :: Science/Research",
+  "License :: OSI Approved :: MIT License",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3 :: Only",
+  "Programming Language :: Python :: 3.9",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Topic :: Scientific/Engineering :: Chemistry"
+]
+dependencies = [
+  "numpy>=1.23"
+]
+
+[project.urls]
+Homepage = "https://github.com/your-org/CPLKit"
+Repository = "https://github.com/your-org/CPLKit"
+Issues = "https://github.com/your-org/CPLKit/issues"
+
+[project.scripts]
+cplkit = "cplkit.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["cplkit*"]
