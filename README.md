@@ -37,7 +37,6 @@ The repository also includes backward-compatible script entry points:
 
 ```bash
 python CPLkit.py --help
-python CPLKit.py --help
 ```
 
 ## Density modes
