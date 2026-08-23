@@ -1,13 +1,14 @@
 # CPLKit
 
-CPLKit is an independently written Python package for circularly polarized luminescence oriented post-processing of Gaussian TD-DFT calculations. It parses Gaussian excited-state output, reuses or generates molecular-orbital cube files, reconstructs electric dipole transition moment (EDTM) and magnetic dipole transition moment (MDTM) density grids, writes projected cube files, and exports CPL summary tables.
+CPLKit is an independently written Python package for circularly polarized luminescence oriented post-processing of Gaussian and ORCA excited-state calculations. It exports CPL summary tables from Gaussian or ORCA TD-DFT/TDA output. For Gaussian calculations it can additionally reuse or generate molecular-orbital cube files and reconstruct electric dipole transition moment (EDTM) and magnetic dipole transition moment (MDTM) density grids.
 
-CPLKit was implemented de novo in Python from published transition-density equations and Gaussian output conventions. It is not a MATLAB port, wrapper, or line-by-line translation.
+CPLKit was implemented de novo in Python from published transition-density equations and Gaussian/ORCA output conventions. It is not a MATLAB port, wrapper, or line-by-line translation.
 
 ## Features
 
 - Gaussian TD-DFT excited-state parser for CI coefficients and transition-moment tables.
-- CPL summary CSV export from Gaussian output.
+- CPL summary CSV export from Gaussian or ORCA TD-DFT/TDA output.
+- Automatic Gaussian/ORCA output detection and ORCA length-gauge spectrum parsing.
 - Native Gaussian `cubegen` orchestration for molecular-orbital cube generation.
 - Explicit Bohr handling for Gaussian cube files.
 - EDTM and MDTM density cube generation.
@@ -38,6 +39,24 @@ The repository also includes backward-compatible script entry points:
 ```bash
 python CPLkit.py --help
 ```
+
+## ORCA CPL summary
+
+For an ORCA TD-DFT or TDA output containing the length-gauge absorption and CD
+spectrum tables, export all matching excited states with:
+
+```bash
+cplkit \
+  --log path/to/orca_calculation.out \
+  --program orca \
+  --cpl_only \
+  --outdir results/orca_cpl
+```
+
+The default `--program auto` detects ORCA automatically. ORCA support is for
+CPL CSV export; Gaussian-only MO cube reconstruction is not attempted. See
+[docs/ORCA_CPL.md](docs/ORCA_CPL.md) for the required output tables, unit
+convention, and the `g_CPL` definition.
 
 ## Density modes
 

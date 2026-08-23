@@ -26,13 +26,15 @@ from .densities import (
     orbital_gradients,
 )
 from .gaussian import (
-    build_cpl_rows,
+    build_cpl_rows as build_gaussian_cpl_rows,
     diagnose_coefficients,
     parse_excited_state_block,
     parse_edtm_vector,
     parse_mdtm_vector,
     write_cpl_csv,
 )
+from .orca import build_cpl_rows as build_orca_cpl_rows
+from .programs import detect_output_program
 from .models import CPLRow
 from .utils import Timer, eprint, progress_line
 from .validation import compare_component_integrals, write_validation_csv
@@ -43,12 +45,18 @@ from . import IMPLEMENTATION_NOTE
 def build_parser() -> argparse.ArgumentParser:
     ap = argparse.ArgumentParser(
         description=(
-            "Generate EDTM and MDTM "
-            "density cube files from Gaussian TD-DFT output. CPLkit is an independent "
-            "Python implementation and is not a MATLAB port or wrapper."
+            "Export CPL summaries from Gaussian or ORCA TD-DFT/TDA output and "
+            "generate EDTM/MDTM density cubes from Gaussian output. CPLkit is an "
+            "independent Python implementation and is not a MATLAB port or wrapper."
         )
     )
-    ap.add_argument("--log", required=True, type=Path, help="Gaussian TD-DFT output (*.log/*.out)")
+    ap.add_argument("--log", required=True, type=Path, help="Gaussian or ORCA TD-DFT/TDA output (*.log/*.out)")
+    ap.add_argument(
+        "--program",
+        choices=["auto", "gaussian", "orca"],
+        default="auto",
+        help="Output program. Default: detect automatically from the file.",
+    )
     ap.add_argument("--state", type=int, default=None, help="Excited state index (1-based) for cube generation")
     ap.add_argument("--chk", type=Path, default=None, help="Checkpoint or formatted checkpoint file for cubegen")
     ap.add_argument("--mocubes_dir", type=Path, default=None, help="Directory with mo<MO>.cube files")
@@ -121,6 +129,15 @@ def main(argv: Optional[List[str]] = None) -> None:
         raise FileNotFoundError(f"Log file not found: {args.log}")
     if args.chk is not None and not args.chk.exists():
         raise FileNotFoundError(f"Checkpoint file not found: {args.chk}")
+
+    log_text = args.log.read_text(errors="ignore")
+    program = detect_output_program(log_text) if args.program == "auto" else args.program
+    eprint(f"[Program] {program}")
+    if program == "orca" and not args.cpl_only:
+        raise ValueError(
+            "ORCA output currently supports CPL CSV export only. Add --cpl_only; "
+            "Gaussian cubegen density reconstruction is not applicable to ORCA output."
+        )
     if not args.cpl_only:
         if args.state is None:
             raise ValueError("--state is required unless --cpl_only is specified.")
@@ -133,37 +150,41 @@ def main(argv: Optional[List[str]] = None) -> None:
     outdir.mkdir(parents=True, exist_ok=True)
 
     mode_tag = args.density_mode.replace("-", "_")
-    if args.density_mode == "contribution-map" and not args.skip_validation_report:
-        eprint("[Mode warning] contribution-map mode uses signed square 2*c*abs(c) weights to display configuration contributions. Moment-integral validation against Gaussian is not expected to pass in this mode.")
-    if args.density_mode == "validation":
-        eprint(
-            "[Mode] validation: EDTM weight = "
-            f"{args.validation_edtm_factor:g}*c; MDTM scale = {args.validation_mdtm_factor:g}*c; "
-            f"phase_align={args.phase_align}"
-        )
-    else:
-        eprint("[Mode] contribution-map: EDTM weight = 2*c*abs(c); MDTM scale = c*abs(c).")
+    if not args.cpl_only:
+        if args.density_mode == "contribution-map" and not args.skip_validation_report:
+            eprint("[Mode warning] contribution-map mode uses signed square 2*c*abs(c) weights to display configuration contributions. Moment-integral validation against Gaussian is not expected to pass in this mode.")
+        if args.density_mode == "validation":
+            eprint(
+                "[Mode] validation: EDTM weight = "
+                f"{args.validation_edtm_factor:g}*c; MDTM scale = {args.validation_mdtm_factor:g}*c; "
+                f"phase_align={args.phase_align}"
+            )
+        else:
+            eprint("[Mode] contribution-map: EDTM weight = 2*c*abs(c); MDTM scale = c*abs(c).")
 
-    mode_settings_path = outdir / "density_mode_settings.txt"
-    mode_settings_path.write_text(
-        "density_mode=" + args.density_mode + "\n"
-        + "phase_align=" + args.phase_align + "\n"
-        + f"validation_edtm_factor={args.validation_edtm_factor}\n"
-        + f"validation_mdtm_factor={args.validation_mdtm_factor}\n"
-        + "accumulation=" + args.accumulation + "\n"
-        + "implementation_origin=independent_python_from_published_equations\n"
-        + "matlab_dependency=none\n"
-        + "contribution_map_rationale=signed_square_weights_follow_configuration_contributions_not_linear_transition_moments\n",
-        encoding="utf-8",
-    )
+        mode_settings_path = outdir / "density_mode_settings.txt"
+        mode_settings_path.write_text(
+            "density_mode=" + args.density_mode + "\n"
+            + "phase_align=" + args.phase_align + "\n"
+            + f"validation_edtm_factor={args.validation_edtm_factor}\n"
+            + f"validation_mdtm_factor={args.validation_mdtm_factor}\n"
+            + "accumulation=" + args.accumulation + "\n"
+            + "implementation_origin=independent_python_from_published_equations\n"
+            + "matlab_dependency=none\n"
+            + "contribution_map_rationale=signed_square_weights_follow_configuration_contributions_not_linear_transition_moments\n",
+            encoding="utf-8",
+        )
 
     t0 = time.perf_counter()
-    log_text = args.log.read_text(errors="ignore")
 
     cpl_rows: Optional[List[CPLRow]] = None
     cpl_csv_path = args.cpl_csv_path or (outdir / f"{args.log.stem}-CPL.csv")
     if not args.no_cpl_csv:
-        cpl_rows = build_cpl_rows(log_text)
+        cpl_rows = (
+            build_orca_cpl_rows(log_text)
+            if program == "orca"
+            else build_gaussian_cpl_rows(log_text)
+        )
         write_cpl_csv(cpl_csv_path, args.log, cpl_rows)
         eprint(
             f"[1/8] Wrote CPL CSV in {Timer.fmt(time.perf_counter() - t0)}: "
