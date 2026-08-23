@@ -1,4 +1,4 @@
-"""Typed data containers for Gaussian parsing, cube files, and validation."""
+"""Typed data containers for CPL summaries, Gaussian cube files, and validation."""
 
 from __future__ import annotations
 

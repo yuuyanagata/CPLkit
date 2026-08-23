@@ -4,8 +4,8 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "cplkit"
-version = "0.4.0"
-description = "Gaussian TD-DFT post-processing for EDTM and MDTM density analysis in circularly polarized luminescence studies"
+version = "0.5.0"
+description = "Gaussian and ORCA TD-DFT/TDA post-processing for circularly polarized luminescence studies"
 readme = "README.md"
 requires-python = ">=3.9"
 license = { text = "MIT" }
@@ -15,6 +15,7 @@ authors = [
 keywords = [
   "circularly polarized luminescence",
   "Gaussian",
+  "ORCA",
   "TD-DFT",
   "transition moment density",
   "electric dipole transition moment",
@@ -37,9 +38,9 @@ dependencies = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/your-org/CPLKit"
-Repository = "https://github.com/your-org/CPLKit"
-Issues = "https://github.com/your-org/CPLKit/issues"
+Homepage = "https://github.com/yuuyanagata/CPLkit"
+Repository = "https://github.com/yuuyanagata/CPLkit"
+Issues = "https://github.com/yuuyanagata/CPLkit/issues"
 
 [project.scripts]
 cplkit = "cplkit.cli:main"

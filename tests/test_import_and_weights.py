@@ -5,7 +5,7 @@ from cplkit.densities import excitation_weights
 
 
 def test_version_is_public_semver():
-    assert cplkit.__version__ == "0.4.0"
+    assert cplkit.__version__ == "0.5.0"
 
 
 def test_contribution_map_weighting():
